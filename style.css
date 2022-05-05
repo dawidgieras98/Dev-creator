@@ -52,8 +52,7 @@ body {
   cursor: pointer;
 }
 
-.badge:after {
-  content: attr(value);
+.badge {
   font-size: 1.1rem;
   background: var(--primaryColor);
   border-radius: 30%;

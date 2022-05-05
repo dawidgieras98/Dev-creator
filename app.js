@@ -3,10 +3,11 @@ const closeCartBtn = document.querySelector(".close-cart");
 const clearCartBtn = document.querySelector(".clear-cart");
 const cartDOM = document.querySelector(".cart");
 const cartOverlay = document.querySelector(".cart-overlay");
-const cartItems = document.querySelector(".cart-items");
+const cartItems = document.querySelector(".cart-item");
 const cartTotal = document.querySelector(".cart-total");
 const cartContent = document.querySelector(".cart-content");
 const productsDOM = document.querySelector(".products-center");
+const counter = document.querySelector(".badge");
 
 let cart = [];
 let buttonsDOM = [];
@@ -78,15 +79,11 @@ class UI {
     let tempTotal = 0;
     let itemsTotal = 0;
     cart.map((item) => {
-      let tempTotal = 0;
-      let itemsTotal = 0;
-      cart.map((item) => {
-        tempTotal += item.price * item.amount;
-        itemsTotal += item.amount;
-      });
-      cartTotal.innerText = parseFloat(tempTotal.toFixed(2));
-      cartItems.innerText = itemsTotal;
+      tempTotal += item.price * item.amount;
+      itemsTotal += item.amount;
     });
+    cartTotal.innerText = parseFloat(tempTotal.toFixed(2));
+    counter.innerText = itemsTotal;
   }
 }
 
