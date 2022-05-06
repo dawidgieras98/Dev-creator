@@ -74,8 +74,6 @@ class UI {
         this.addCartItem(cartItem);
         // show the cart
         this.showCart();
-        // close the cart
-        this.closeCart();
       });
     });
   }
@@ -112,13 +110,82 @@ class UI {
     cartDOM.classList.add("showCart");
   }
 
-  setupAPP() {}
+  setupAPP() {
+    cart = Storage.getCart();
+    this.setCartValues(cart);
+    this.populateCart(cart);
+    cartBtn.addEventListener("click", this.showCart);
+    closeCartBtn.addEventListener("click", this.closeCart);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        this.closeCart();
+      }
+    });
+  }
+  populateCart(cart) {
+    cart.forEach((item) => this.addCartItem(item));
+  }
 
   closeCart() {
-    closeCartBtn.addEventListener("click", () => {
-      cartOverlay.classList.remove("transparentBcg");
-      cartDOM.classList.remove("showCart");
+    cartOverlay.classList.remove("transparentBcg");
+    cartDOM.classList.remove("showCart");
+  }
+
+  cartLogic() {
+    // Clear whole cart
+    clearCartBtn.addEventListener("click", () => {
+      this.clearCart();
     });
+    // Add/Remove single item
+    cartContent.addEventListener("click", (e) => {
+      if (e.target.classList.contains("remove-item")) {
+        let removeItem = e.target;
+        let id = removeItem.dataset.id;
+        cartContent.removeChild(removeItem.parentElement.parentElement);
+        this.removeItem(id);
+      } else if (e.target.classList.contains("fa-chevron-up")) {
+        let addAmount = e.target;
+        let id = addAmount.dataset.id;
+        let tempItem = cart.find((item) => item.id === id);
+        tempItem.amount++;
+        Storage.saveCart(cart);
+        this.setCartValues(cart);
+        addAmount.nextElementSibling.innerText = tempItem.amount;
+      } else if (e.target.classList.contains("fa-chevron-down")) {
+        let lowerAmount = e.target;
+        let id = lowerAmount.dataset.id;
+        let tempItem = cart.find((item) => item.id === id);
+        tempItem.amount--;
+        if (tempItem.amount > 0) {
+          Storage.saveCart(cart);
+          this.setCartValues(cart);
+          lowerAmount.previousElementSibling.innerText = tempItem.amount;
+        } else {
+          cartContent.removeChild(lowerAmount.parentElement.parentElement);
+          this.removeItem(id);
+        }
+      }
+    });
+  }
+  clearCart() {
+    let cartItems = cart.map((item) => item.id);
+    cartItems.forEach((id) => this.removeItem(id));
+    while (cartContent.children.length > 0) {
+      cartContent.removeChild(cartContent.children[0]);
+    }
+    this.closeCart();
+  }
+  removeItem(id) {
+    cart = cart.filter((item) => item.id !== id);
+    this.setCartValues(cart);
+    Storage.saveCart(cart);
+    let button = this.getSingleButton(id);
+    button.disabled = false;
+    button.innerHTML = `<i class="fas fa-shopping-cart"></i>add to bag`;
+  }
+
+  getSingleButton(id) {
+    return buttonsDOM.find((button) => button.dataset.id === id);
   }
 }
 
@@ -155,5 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
     })
     .then(() => {
       ui.getBagButtons();
+      ui.cartLogic();
     });
 });
